@@ -1,10 +1,8 @@
 package org.tfm.leshan.server;
 
 import com.google.gson.Gson;
-import org.aeonbits.owner.ConfigFactory;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.tfm.leshan.server.conf.ServerConfig;
 import org.tfm.leshan.server.model.Dht22;
 
 import java.util.Date;
@@ -28,8 +26,9 @@ public class KafkaPublisher {
         this.isAsync = isAsync;
     }
 
-    public void sendMessage(Object temp, Object humidity){
+    public void sendMessage(Object temp, Object humidity, String deviceId){
         Dht22 sensor = new Dht22();
+        sensor.setDeviceId(deviceId);
         sensor.setTemperature((double)temp);
         sensor.setHumidity((double)humidity);
 

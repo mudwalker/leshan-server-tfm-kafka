@@ -9,12 +9,14 @@ import org.eclipse.leshan.core.request.ReadRequest;
 import org.eclipse.leshan.core.response.ReadResponse;
 import org.eclipse.leshan.server.californium.LeshanServerBuilder;
 import org.eclipse.leshan.server.californium.impl.LeshanServer;
+import org.tfm.leshan.server.conf.ServerConfig;
 import org.eclipse.leshan.server.model.LwM2mModelProvider;
 import org.eclipse.leshan.server.model.StaticModelProvider;
 import org.eclipse.leshan.server.registration.Registration;
 import org.eclipse.leshan.server.registration.RegistrationListener;
 import org.eclipse.leshan.server.registration.RegistrationUpdate;
-import org.tfm.leshan.server.conf.ServerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +25,10 @@ public class Main {
     static  Registration currentRegistration = null;
     static KafkaPublisher kafka;
 
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) throws InterruptedException {
+        log.info("Leshan server -> Kafka");
 
         ServerConfig cfg = ConfigFactory.create(ServerConfig.class);
 
@@ -104,7 +109,7 @@ public class Main {
                     }
 
                     if (responseTemp.isSuccess() && responseHum.isSuccess())
-                        kafka.sendMessage(temp, hum);
+                        kafka.sendMessage(temp, hum,currentRegistration.getEndpoint());
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
