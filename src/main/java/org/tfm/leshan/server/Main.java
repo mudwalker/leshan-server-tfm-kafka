@@ -1,3 +1,6 @@
+package org.tfm.leshan.server;
+
+import org.aeonbits.owner.ConfigFactory;
 import org.eclipse.leshan.core.model.ObjectLoader;
 import org.eclipse.leshan.core.model.ObjectModel;
 import org.eclipse.leshan.core.node.LwM2mResource;
@@ -11,6 +14,7 @@ import org.eclipse.leshan.server.model.StaticModelProvider;
 import org.eclipse.leshan.server.registration.Registration;
 import org.eclipse.leshan.server.registration.RegistrationListener;
 import org.eclipse.leshan.server.registration.RegistrationUpdate;
+import org.tfm.leshan.server.conf.ServerConfig;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,30 +25,22 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
+        ServerConfig cfg = ConfigFactory.create(ServerConfig.class);
 
-        // load the core models (Security, Server, Device ...)
+        // Cargamos los models por defecto(Security, Server, Device ...)
         List<ObjectModel> models = ObjectLoader.loadDefault();
-// load 3 models embedded in a "models" folder of your jar.
+        // Cargamos los models del sensor
         String[] modelPaths = new String[] { "3303.xml", "3304.xml"};
         models.addAll(ObjectLoader.loadDdfResources("/models/", modelPaths));
 
-// then add it to builder
+        // Añadimos los models al server
         LeshanServerBuilder builder = new LeshanServerBuilder();
         LwM2mModelProvider modelProvider = new StaticModelProvider(models);
         builder.setObjectModelProvider(modelProvider);
 
-// then create your server
-        //LeshanServer lwServer = builder.build();
-
-
-
-
-        //LeshanServerBuilder builder = new LeshanServerBuilder();
         LeshanServer server = builder.build();
-        kafka = new KafkaPublisher("testTopic", true);
+        kafka = new KafkaPublisher(cfg.kafkaTopic(), cfg.kafkaServer(), cfg.kafkaPort(), cfg.clientId(), true);
         server.start();
-
-
 
         server.getRegistrationService().addListener(new RegistrationListener() {
 

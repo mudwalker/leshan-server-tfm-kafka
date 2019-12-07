@@ -52,6 +52,13 @@
             <version>1.7.10</version>
             <scope>runtime</scope>
         </dependency>
+
+            <dependency>
+                <groupId>org.aeonbits.owner</groupId>
+                <artifactId>owner</artifactId>
+                <version>1.0.8</version>
+            </dependency>
+
     </dependencies>
 
 </project>

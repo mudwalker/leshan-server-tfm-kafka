@@ -1,7 +1,11 @@
+package org.tfm.leshan.server;
+
 import com.google.gson.Gson;
-import model.Dht22;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.tfm.leshan.server.conf.ServerConfig;
+import org.tfm.leshan.server.model.Dht22;
 
 import java.util.Date;
 import java.util.Properties;
@@ -13,14 +17,10 @@ public class KafkaPublisher {
     private final String topic;
     private final Boolean isAsync;
 
-    public static final String KAFKA_SERVER_URL = "192.168.1.151";
-    public static final int KAFKA_SERVER_PORT = 9092;
-    public static final String CLIENT_ID = "SampleProducer";
-
-    public KafkaPublisher(String topic, Boolean isAsync) {
+    public KafkaPublisher(String topic, String server, int port, String clientId, Boolean isAsync) {
         Properties properties = new Properties();
-        properties.put("bootstrap.servers", KAFKA_SERVER_URL + ":" + KAFKA_SERVER_PORT);
-        properties.put("client.id", CLIENT_ID);
+        properties.put("bootstrap.servers", server + ":" + port);
+        properties.put("client.id", clientId);
         properties.put("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
         properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         producer = new org.apache.kafka.clients.producer.KafkaProducer<Integer, String>(properties);
