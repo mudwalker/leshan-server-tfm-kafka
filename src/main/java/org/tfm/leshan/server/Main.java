@@ -52,13 +52,13 @@ public class Main {
             public void registered(Registration registration, Registration previousReg,
                                    Collection<Observation> previousObsersations) {
                 currentRegistration = registration;
-                System.out.println("new device: " + registration.getEndpoint());
+               log.info("new device: " + registration.getEndpoint());
                 /*try {
                     ReadResponse response = server.send(registration, new ReadRequest(3303,0,5700));
                     if (response.isSuccess()) {
-                        System.out.println("Device temp:" + ((LwM2mResource)response.getContent()).getValue());
+                        log.info("Device temp:" + ((LwM2mResource)response.getContent()).getValue());
                     }else {
-                        System.out.println("Failed to read:" + response.getCode() + " " + response.getErrorMessage());
+                        log.info("Failed to read:" + response.getCode() + " " + response.getErrorMessage());
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -67,13 +67,13 @@ public class Main {
 
             public void updated(RegistrationUpdate update, Registration updatedReg, Registration previousReg) {
                 currentRegistration = updatedReg;
-                System.out.println("device is still here: " + updatedReg.getEndpoint());
+                log.info("device is still here: " + updatedReg.getEndpoint());
                 try {
                     ReadResponse response = server.send(updatedReg, new ReadRequest(3303,0,5701));
                     if (response.isSuccess()) {
-                        System.out.println("Device time:" + ((LwM2mResource)response.getContent()).getValue());
+                        log.info("Device time:" + ((LwM2mResource)response.getContent()).getValue());
                     }else {
-                        System.out.println("Failed to read:" + response.getCode() + " " + response.getErrorMessage());
+                        log.info("Failed to read:" + response.getCode() + " " + response.getErrorMessage());
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -82,7 +82,7 @@ public class Main {
 
             public void unregistered(Registration registration, Collection<Observation> observations, boolean expired,
                                      Registration newReg) {
-                System.out.println("device left: " + registration.getEndpoint());
+                log.info("device left: " + registration.getEndpoint());
             }
         });
 
@@ -94,24 +94,24 @@ public class Main {
                     ReadResponse responseTemp = server.send(currentRegistration, new ReadRequest(3303,0,5700));
                     if (responseTemp.isSuccess()) {
                         temp =  ((LwM2mResource)responseTemp.getContent()).getValue();
-                        System.out.println("Device temp:" + temp);
+                        log.info("Device temp:" + temp);
                     }else {
-                        System.out.println("Failed to read:" + responseTemp.getCode() + " " + responseTemp.getErrorMessage());
+                        log.info("Failed to read:" + responseTemp.getCode() + " " + responseTemp.getErrorMessage());
                     }
 
                     ReadResponse responseHum = server.send(currentRegistration, new ReadRequest(3304,0,5700));
                     if (responseHum.isSuccess()) {
                         hum =  ((LwM2mResource)responseHum.getContent()).getValue();
 
-                        System.out.println("Device Humidity:" + hum);
+                        log.info("Device Humidity:" + hum);
                     }else {
-                        System.out.println("Failed to read:" + responseTemp.getCode() + " " + responseTemp.getErrorMessage());
+                        log.info("Failed to read:" + responseTemp.getCode() + " " + responseTemp.getErrorMessage());
                     }
 
                     if (responseTemp.isSuccess() && responseHum.isSuccess())
-                        kafka.sendMessage(temp, hum,currentRegistration.getEndpoint());
+                        kafka.sendMessage((double)temp, (double)hum,currentRegistration.getEndpoint());
 
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

@@ -3,6 +3,8 @@ package org.tfm.leshan.server;
 import com.google.gson.Gson;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tfm.leshan.server.model.Dht22;
 
 import java.util.Date;
@@ -10,6 +12,8 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 public class KafkaPublisher {
+
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     private final KafkaProducer<Integer, String> producer;
     private final String topic;
@@ -26,11 +30,15 @@ public class KafkaPublisher {
         this.isAsync = isAsync;
     }
 
-    public void sendMessage(Object temp, Object humidity, String deviceId){
+    public void sendMessage(double temp, double humidity, String deviceId){
+
+        // No recogemos los valores iniciales
+        if (temp == 0.0 || humidity == 0.0) return;
+
         Dht22 sensor = new Dht22();
         sensor.setDeviceId(deviceId);
-        sensor.setTemperature((double)temp);
-        sensor.setHumidity((double)humidity);
+        sensor.setTemperature(temp);
+        sensor.setHumidity(humidity);
 
         sensor.setTimestamp(new Date().getTime());
         //Gson json = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -41,7 +49,7 @@ public class KafkaPublisher {
         try {
             producer.send(new ProducerRecord<>(topic,
                     messageStr)).get();
-            System.out.println("Sent message: " + messageStr + ")");
+            log.info("Sent message: " + messageStr + ")");
         }
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -55,7 +63,7 @@ public class KafkaPublisher {
                     producer.send(new ProducerRecord<>(topic,
                             messageNo,
                             messageStr)).get();
-                    System.out.println("Sent message: (" + messageNo + ", " + messageStr + ")");
+                    log.info("Sent message: (" + messageNo + ", " + messageStr + ")");
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                     // handle the exception
